@@ -6,7 +6,6 @@ using GZip
 using Graphs
 using Images
 using InferOpt
-using InferOptExperimental
 using JSON
 using LinearAlgebra
 using Metalhead

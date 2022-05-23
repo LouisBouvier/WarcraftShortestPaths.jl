@@ -19,13 +19,13 @@ Losses, Cost_ratios = train_with_perturbed_FYL!(;
     test_dataset = Flux.DataLoader(test_dataset; batchsize=length(test_dataset)),
     options=options,
 )
-# Learning by experience
-Losses, Cost_ratios = train_with_perturbed_cost!(;
-    model=model,
-    train_dataset=Flux.DataLoader(train_dataset; batchsize=options.batch_size),
-    test_dataset = Flux.DataLoader(test_dataset; batchsize=length(test_dataset)),
-    options=options,
-)
+# # Learning by experience
+# Losses, Cost_ratios = train_with_perturbed_cost!(;
+#     model=model,
+#     train_dataset=Flux.DataLoader(train_dataset; batchsize=options.batch_size),
+#     test_dataset = Flux.DataLoader(test_dataset; batchsize=length(test_dataset)),
+#     options=options,
+# )
 
 # # Plot loss
 plot_loss_and_cost_ratio(Losses, Cost_ratios, options)

@@ -49,7 +49,7 @@ function train_with_perturbed_FYL!(;model::Flux.Chain, train_dataset, test_datas
     losses = Matrix{Float64}(undef, options.nb_epochs, 2)
     cost_ratios = Matrix{Float64}(undef, options.nb_epochs, 2)
     # Define model and loss
-    loss = FenchelYoungLoss(Perturbed(warcraft_shortest_path, options.ϵ, options.M))
+    loss = FenchelYoungLoss(PerturbedNormal(warcraft_shortest_path, options.ϵ, options.M))
     # Optimizer
     opt = ADAM(options.lr_start)
     # Pipeline
@@ -92,7 +92,7 @@ function train_with_perturbed_cost!(;model::Flux.Chain, train_dataset, test_data
     losses = Matrix{Float64}(undef, options.nb_epochs, 2)
     cost_ratios = Matrix{Float64}(undef, options.nb_epochs, 2)
     # Define regularized pred
-    regpred = Perturbed(warcraft_shortest_path; ε=options.ϵ, M=options.M)
+    regpred = PerturbedNormal(warcraft_shortest_path; ε=options.ϵ, M=options.M)
     # Define cost 
     cost(x, kwargs) = dot(regpred(model(x); wg=kwargs.wg), -Flux.flatten(permutedims(kwargs.wg.cell_costs, (2,1))))
     cost(batch) = sum(cost(item[1], item[3]) for item in batch)
