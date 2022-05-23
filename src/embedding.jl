@@ -26,6 +26,15 @@ function neg_exponential_tensor(x)
 end
 
 """
+    squeeze_last_dims(x)
+
+Squeeze two last dimensions on tensor `x`.
+"""
+function squeeze_last_dims(x)
+    return reshape(x, size(x)[1], size(x)[2])
+end
+
+"""
     create_warcraft_embedding()
 
 Create and return a `Flux.Chain` embedding for the Warcraft terrains, inspired by [differentiation of blackbox combinatorial solvers](https://github.com/martius-lab/blackbox-differentiation-combinatorial-solvers/blob/master/models.py).
@@ -42,10 +51,11 @@ function create_warcraft_embedding()
     model_embedding = Chain(resnet18.layers[1][1:4], 
                             AdaptiveMaxPool((12,12)), 
                             average_tensor, 
-                            permute_tensor,
-                            Flux.flatten,
+                            # permute_tensor,
+                            # Flux.flatten,
                             neg_exponential_tensor, 
-                            vec,
+                            squeeze_last_dims,
+                            # vec,
     )
     return model_embedding
 end

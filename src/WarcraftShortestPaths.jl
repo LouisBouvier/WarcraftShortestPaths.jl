@@ -4,6 +4,7 @@ using Colors
 using Flux
 using GZip
 using Graphs
+using GridGraphs
 using Images
 using InferOpt
 using JSON
@@ -12,10 +13,8 @@ using Metalhead
 using NPZ
 using Plots
 using ProgressMeter
-using SparseArrays
 using Tar
 
-include("warcraft_graph.jl")
 include("warcraft_plots.jl")
 include("embedding.jl")
 include("dataset.jl")
@@ -27,9 +26,7 @@ export create_warcraft_embedding
 export train_with_perturbed_FYL!
 export train_with_perturbed_cost!
 export plot_loss
-export warcraft_shortest_path
-export vector_to_grid
-export grid_to_vector
+export linear_maximizer
 export convert_image_for_plot
 export plot_image_label_path
 export plot_terrain_weights

@@ -1,18 +1,34 @@
+
+"""
+    linear_maximizer(θ)
+
+Compute the shortest path from top-left corner to down-right corner on a gridgraph of the size of `θ` as an argmax.
+
+The weights of the arcs are given by the opposite of the values of `θ` related 
+to their destination nodes. We use Dijkstra algorithm on GridGraphs, implemented 
+in [GridGraphs.jl](https://github.com/gdalle/GridGraphs.jl).
+"""
+function linear_maximizer(θ)
+    g = GridGraph(-θ)
+    path = grid_dijkstra(g, 1, nv(g))
+    return path_to_matrix(g, path)
+end
+
 """
     shortest_path_cost_ratio(model, x, y, kwargs)
 
 Compute the ratio between the cost of the solution given by the `model` cell costs and the cost of the true solution.
 
 We evaluate both the shortest path with respect to the weights given by `model(x)` and the labelled shortest path `y`
-using the true cell costs stored in `kwargs.wg.cell_costs`. 
+using the true cell costs stored in `kwargs.wg.weights`. 
 This ratio is by definition greater than one. The closer it is to one, the better is the solution given by the current 
 weights of `model`. We thus track this metric during training.
 """
 function shortest_path_cost_ratio(model, x, y, kwargs)
-    true_cell_costs = grid_to_vector(kwargs.wg.cell_costs)
+    true_weights = kwargs.wg.weights
     θ_computed = model(x)
-    shortest_path_computed = warcraft_shortest_path(θ_computed, wg = kwargs.wg)
-    return sum(true_cell_costs[i]*shortest_path_computed[i] for i = 1:144)/sum(y[i]*true_cell_costs[i] for i=1:144)
+    shortest_path_computed = linear_maximizer(θ_computed)
+    return dot(true_weights, shortest_path_computed)/dot(y, true_weights)
 end
 
 """
@@ -49,12 +65,12 @@ function train_with_perturbed_FYL!(;model::Flux.Chain, train_dataset, test_datas
     losses = Matrix{Float64}(undef, options.nb_epochs, 2)
     cost_ratios = Matrix{Float64}(undef, options.nb_epochs, 2)
     # Define model and loss
-    loss = FenchelYoungLoss(PerturbedNormal(warcraft_shortest_path, options.ϵ, options.M))
+    loss = FenchelYoungLoss(PerturbedLogNormal(linear_maximizer, options.ϵ, options.M))
     # Optimizer
     opt = ADAM(options.lr_start)
     # Pipeline
-    flux_loss(x, y, kwargs) = loss(model(x), y; wg=kwargs.wg)
-    flux_loss(batch) = sum(flux_loss(item[1], item[2], item[3]) for item in batch)
+    flux_loss(x, y) = loss(model(x), y)
+    flux_loss(batch) = sum(flux_loss(item[1], item[2]) for item in batch)
     # model parameters
     par = Flux.params(model)
     # Train loop
@@ -92,9 +108,9 @@ function train_with_perturbed_cost!(;model::Flux.Chain, train_dataset, test_data
     losses = Matrix{Float64}(undef, options.nb_epochs, 2)
     cost_ratios = Matrix{Float64}(undef, options.nb_epochs, 2)
     # Define regularized pred
-    regpred = PerturbedNormal(warcraft_shortest_path; ε=options.ϵ, M=options.M)
+    regpred = PerturbedLogNormal(linear_maximizer; ε=options.ϵ, M=options.M)
     # Define cost 
-    cost(x, kwargs) = dot(regpred(model(x); wg=kwargs.wg), -Flux.flatten(permutedims(kwargs.wg.cell_costs, (2,1))))
+    cost(x, kwargs) = dot(regpred(model(x)), (-kwargs.wg.weights))  #dot(regpred(model(x); wg=kwargs.wg), -Flux.flatten(permutedims(kwargs.wg.weights, (2,1))))
     cost(batch) = sum(cost(item[1], item[3]) for item in batch)
     # Optimizer
     opt = ADAM(options.lr_start)

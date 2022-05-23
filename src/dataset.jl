@@ -53,8 +53,8 @@ function create_dataset(decompressed_path::String, nb_samples::Int=10000)
         reshape(terrain_images[:, :, :, i], (size(terrain_images[:, :, :, i])..., 1)) for
         i in 1:nb_samples
     ]
-    Y = [grid_to_vector(terrain_labels[:, :, i]) for i in 1:nb_samples]
-    WG = [(wg=WarcraftGrid(terrain_weights[:, :, i]),) for i in 1:nb_samples]
+    Y = [terrain_labels[:, :, i] for i in 1:nb_samples]
+    WG = [(wg=GridGraph(terrain_weights[:, :, i]),) for i in 1:nb_samples]
     return collect(zip(X, Y, WG))
 end
 

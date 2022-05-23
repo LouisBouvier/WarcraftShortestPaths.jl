@@ -4,7 +4,7 @@ using Flux
 compressed_path = joinpath(@__DIR__, "..", "data", "warcraft_maps.tar.gz")
 decompressed_path = joinpath(@__DIR__, "..", "data", "warcraft_maps")
 
-options = (ϵ=2.0, M=5, nb_epochs=50, nb_samples=50, batch_size = 7, lr_start = 0.001)
+options = (ϵ=0.1, M=3, nb_epochs=50, nb_samples=50, batch_size = 7, lr_start = 0.001)
 # Construct embedding
 model = create_warcraft_embedding()
 
@@ -29,22 +29,15 @@ Losses, Cost_ratios = train_with_perturbed_FYL!(;
 
 # # Plot loss
 plot_loss_and_cost_ratio(Losses, Cost_ratios, options)
-# plot_loss(Losses, options)
 
-# # # # Eval effect
-# x, y_true, kwargs = test_dataset[6]
-# θ_test =  model(x)
-# shortest_path = warcraft_shortest_path(θ_test; kwargs...)
-# # θ_true = grid_to_vector(kwargs.wg.cell_costs)
-# # shortest_path = maximizer(-θ_true; kwargs...)
+# Eval effect
+x, y_true, kwargs = test_dataset[6]
+θ_test =  model(x)
+shortest_path = UInt8.(linear_maximizer(θ_test))
 
-# sum(y_true[i]*grid_to_vector(kwargs.wg.cell_costs)[i] for i = 1:144)
-# sum(shortest_path[i]*grid_to_vector(kwargs.wg.cell_costs)[i] for i = 1:144)
+# Display map, shortest path computed and shortest path labelled
+im = convert_image_for_plot(x[:,:,:,1])
+plot_image_label_path(im, shortest_path, y_true)
 
-# grid_true = vector_to_grid(y_true)
-# grid_computed = vector_to_grid(shortest_path)
-# im = convert_image_for_plot(x[:,:,:,1])
-# plot_image_label_path(im, grid_computed, grid_true)
-
-
-# plot_terrain_weights(kwargs.wg.cell_costs, -vector_to_grid(θ_test))
+# Display labelled and computed weights
+plot_terrain_weights(kwargs.wg.weights, -θ_test)
