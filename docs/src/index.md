@@ -1,14 +1,14 @@
 ```@meta
-CurrentModule = WarcraftShortestPath
+CurrentModule = WarcraftShortestPaths
 ```
 
-# WarcraftShortestPath
+# WarcraftShortestPaths
 
-Documentation for [WarcraftShortestPath](https://github.com/LouisBouvier/WarcraftShortestPath.jl).
+Documentation for [WarcraftShortestPaths.jl](https://github.com/LouisBouvier/WarcraftShortestPaths.jl).
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [WarcraftShortestPath]
+Modules = [WarcraftShortestPaths]
 ```

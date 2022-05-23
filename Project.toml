@@ -1,4 +1,4 @@
-name = "WarcraftShortestPath"
+name = "WarcraftShortestPaths"
 uuid = "81d3283d-e5eb-410c-b999-ab193764fe4e"
 authors = ["LouisBouvier <lbouvier975@gmail.com> and contributors"]
 version = "0.1.0"

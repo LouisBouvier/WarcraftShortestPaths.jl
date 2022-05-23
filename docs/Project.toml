@@ -1,3 +1,3 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-WarcraftShortestPath = "81d3283d-e5eb-410c-b999-ab193764fe4e"
+WarcraftShortestPaths = "81d3283d-e5eb-410c-b999-ab193764fe4e"

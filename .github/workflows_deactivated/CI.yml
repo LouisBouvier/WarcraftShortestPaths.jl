@@ -53,6 +53,6 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Documenter: DocMeta, doctest
-            using WarcraftShortestPath
-            DocMeta.setdocmeta!(WarcraftShortestPath, :DocTestSetup, :(using WarcraftShortestPath); recursive=true)
-            doctest(WarcraftShortestPath)'
+            using WarcraftShortestPaths
+            DocMeta.setdocmeta!(WarcraftShortestPaths, :DocTestSetup, :(using WarcraftShortestPaths); recursive=true)
+            doctest(WarcraftShortestPaths)'

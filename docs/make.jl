@@ -1,16 +1,16 @@
-using WarcraftShortestPath
+using WarcraftShortestPaths
 using Documenter
 
-DocMeta.setdocmeta!(WarcraftShortestPath, :DocTestSetup, :(using WarcraftShortestPath); recursive=true)
+DocMeta.setdocmeta!(WarcraftShortestPaths, :DocTestSetup, :(using WarcraftShortestPaths); recursive=true)
 
 makedocs(;
-    modules=[WarcraftShortestPath],
+    modules=[WarcraftShortestPaths],
     authors="LouisBouvier <lbouvier975@gmail.com> and contributors",
-    repo="https://github.com/LouisBouvier/WarcraftShortestPath.jl/blob/{commit}{path}#{line}",
-    sitename="WarcraftShortestPath.jl",
+    repo="https://github.com/LouisBouvier/WarcraftShortestPaths.jl/blob/{commit}{path}#{line}",
+    sitename="WarcraftShortestPaths.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://LouisBouvier.github.io/WarcraftShortestPath.jl",
+        canonical="https://LouisBouvier.github.io/WarcraftShortestPaths.jl",
         assets=String[],
     ),
     pages=[
@@ -19,6 +19,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/LouisBouvier/WarcraftShortestPath.jl",
+    repo="github.com/LouisBouvier/WarcraftShortestPaths.jl",
     devbranch="main",
 )

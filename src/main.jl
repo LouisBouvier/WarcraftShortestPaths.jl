@@ -1,4 +1,4 @@
-using WarcraftShortestPath
+using WarcraftShortestPaths
 using Flux
 
 compressed_path = joinpath(@__DIR__, "..", "data", "warcraft_maps.tar.gz")

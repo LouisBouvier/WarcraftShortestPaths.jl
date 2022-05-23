@@ -1,4 +1,4 @@
-module WarcraftShortestPath
+module WarcraftShortestPaths
 
 using Colors
 using Flux

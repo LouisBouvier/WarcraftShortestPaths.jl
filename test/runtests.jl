@@ -1,6 +1,6 @@
-using WarcraftShortestPath
+using WarcraftShortestPaths
 using Test
 
-@testset "WarcraftShortestPath.jl" begin
+@testset "WarcraftShortestPaths.jl" begin
     # Write your tests here.
 end
