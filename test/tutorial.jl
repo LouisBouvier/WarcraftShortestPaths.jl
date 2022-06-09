@@ -100,8 +100,8 @@ Losses, Cost_ratios = train_with_perturbed_FYL!(;
 #=
 We are interested both in the Fenchel-Young and cost ratio between true and computed shortest path.
 =#
-
-plot_loss_and_cost_ratio(Losses, Cost_ratios, options)
+Gaps = Cost_ratios .- 1
+plot_loss_and_cost_ratio(Losses, Gaps, options)
 
 #=
 To assess performance, we can compare the true and leanrned paths.

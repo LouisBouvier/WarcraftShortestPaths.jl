@@ -28,16 +28,17 @@ Losses, Cost_ratios = train_with_perturbed_FYL!(;
 # )
 
 # # Plot loss
-plot_loss_and_cost_ratio(Losses, Cost_ratios, options)
+Gaps = Cost_ratios .- 1
+plot_loss_and_cost_ratio(Losses, Gaps, options)
 
-# Eval effect
-x, y_true, kwargs = test_dataset[6]
-θ_test =  model(x)
-shortest_path = UInt8.(linear_maximizer(θ_test))
+# # Eval effect
+# x, y_true, kwargs = test_dataset[6]
+# θ_test =  model(x)
+# shortest_path = UInt8.(linear_maximizer(θ_test))
 
-# Display map, shortest path computed and shortest path labelled
-im = convert_image_for_plot(x[:,:,:,1])
-plot_image_label_path(im, shortest_path, y_true)
+# # Display map, shortest path computed and shortest path labelled
+# im = convert_image_for_plot(x[:,:,:,1])
+# plot_image_label_path(im, shortest_path, y_true)
 
-# Display labelled and computed weights
-plot_terrain_weights(kwargs.wg.weights, -θ_test)
+# # Display labelled and computed weights
+# plot_terrain_weights(kwargs.wg.weights, -θ_test)

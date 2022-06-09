@@ -673,8 +673,8 @@ uuid = "9b13fd28-a010-5f03-acff-a1bbcff69959"
 version = "1.0.0"
 
 [[deps.InferOpt]]
-deps = ["ChainRulesCore", "LinearAlgebra", "Random", "SimpleTraits", "SparseArrays", "Statistics", "Test"]
-git-tree-sha1 = "a9254069c4c4bdbe7eba8cb25698ff3dd98afe87"
+deps = ["ChainRulesCore", "LinearAlgebra", "Random", "SimpleTraits", "SparseArrays", "Statistics", "Test", "Unzip"]
+path = "/Users/louisbouvier/Documents/These/librairie_MLRO/Public/InferOpt.jl"
 uuid = "4846b161-c94e-4150-8dac-c7ae193c601f"
 version = "0.1.0"
 
@@ -1522,7 +1522,7 @@ uuid = "41fe7b60-77ed-43a1-b4f0-825fd5a5650d"
 version = "0.1.2"
 
 [[deps.WarcraftShortestPaths]]
-deps = ["Colors", "Flux", "GZip", "Graphs", "GridGraphs", "Images", "InferOpt", "JSON", "LinearAlgebra", "Metalhead", "NPZ", "Plots", "ProgressMeter", "Tar", "UnicodePlots"]
+deps = ["Colors", "Flux", "GZip", "Graphs", "GridGraphs", "Images", "InferOpt", "JSON", "LinearAlgebra", "Metalhead", "NPZ", "Plots", "ProgressMeter", "Tar"]
 path = ".."
 uuid = "81d3283d-e5eb-410c-b999-ab193764fe4e"
 version = "0.1.0"
