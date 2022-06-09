@@ -43,8 +43,8 @@ The embedding is made as follows:
     1) The first 5 layers of ResNet18 (convolution, batch normalization, relu, maxpooling and first resnet block).
     2) An adaptive maxpooling layer to get a (12x12x64) tensor per input image.
     3) An average over the third axis (of size 64) to get a (12x12x1) tensor per input image.
-    4) Permute and flatten to get a `Vector` with indices corresponding to [`grid_to_vector`](@ref) indexing.
-    5) Apply the element-wize [`neg_exponential_tensor`](@ref) function to get cell weights of proper sign to apply shortest path algorithms.
+    4) The element-wize [`neg_exponential_tensor`](@ref) function to get cell weights of proper sign to apply shortest path algorithms.
+    4) A squeeze function to forget the two last dimensions. 
 """
 function create_warcraft_embedding()
     resnet18 = ResNet18(pretrain = false, nclasses = 1)

@@ -99,7 +99,7 @@ Train `model` over `train_dataset` and test on `test_dataset` with perturbed cos
 
 This training involves differentiation through argmax with perturbed cost, using [InferOpt](https://github.com/axelparmentier/InferOpt.jl) package.
 The task is to learn the best parameters for `model`, so that when solving the shortest path problem with its output cell costs, the 
-given solution has a low cost with respect to the true cell weights labelled.
+given solution has a low cost with respect to the true (unseen) cell weights labelled.
 Hyperparameters are passed with `options`. During training, the average train and test losses are stored, as well as the average 
 cost ratio computed with [`shortest_path_cost_ratio`](@ref) both on the train and test datasets.
 """
