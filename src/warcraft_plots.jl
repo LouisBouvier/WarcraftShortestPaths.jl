@@ -43,7 +43,7 @@ Plot the train and test losses computed over epochs.
 """
 function plot_loss(losses::Matrix{Float64}, options::NamedTuple)
     x = collect(1:options.nb_epochs)
-    plot(x, losses, title = "Fenchel Young loss", xlabel = "epochs", ylabel = "loss", label = ["train" "test"])
+    plot(x, losses, title = "Loss", xlabel = "epochs", ylabel = "loss", label = ["train" "test"])
 end
 
 """
@@ -53,7 +53,7 @@ Plot the train and test losses, as well as the train and test gaps computed over
 """
 function plot_loss_and_cost_ratio(losses::Matrix{Float64}, gaps::Matrix{Float64},  options::NamedTuple)
     x = collect(1:options.nb_epochs)
-    p1 = plot(x, losses, title = "Fenchel Young loss", xlabel = "epochs", ylabel = "loss", label = ["train" "test"])
+    p1 = plot(x, losses, title = "Loss", xlabel = "epochs", ylabel = "loss", label = ["train" "test"])
     p2 = plot(x, gaps, title = "Gap", xlabel = "epochs", ylabel = "ratio", label = ["train" "test"])
     plot(p1, p2, layout = (1, 2))
 end

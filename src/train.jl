@@ -65,7 +65,7 @@ function train_with_perturbed_FYL!(;model::Flux.Chain, train_dataset, test_datas
     losses = Matrix{Float64}(undef, options.nb_epochs, 2)
     cost_ratios = Matrix{Float64}(undef, options.nb_epochs, 2)
     # Define model and loss
-    loss = FenchelYoungLoss(PerturbedLogNormal(linear_maximizer, options.ϵ, options.M))
+    loss = FenchelYoungLoss(PerturbedMultiplicative(linear_maximizer;  ε=options.ϵ, nb_samples=options.M))
     # Optimizer
     opt = ADAM(options.lr_start)
     # Pipeline
@@ -108,9 +108,9 @@ function train_with_perturbed_cost!(;model::Flux.Chain, train_dataset, test_data
     losses = Matrix{Float64}(undef, options.nb_epochs, 2)
     cost_ratios = Matrix{Float64}(undef, options.nb_epochs, 2)
     # Define regularized pred
-    regpred = PerturbedLogNormal(linear_maximizer; ε=options.ϵ, M=options.M)
+    regpred = PerturbedMultiplicative(linear_maximizer; ε=options.ϵ, nb_samples=options.M)
     # Define cost 
-    cost(x, kwargs) = dot(regpred(model(x)), (-kwargs.wg.weights))  #dot(regpred(model(x); wg=kwargs.wg), -Flux.flatten(permutedims(kwargs.wg.weights, (2,1))))
+    cost(x, kwargs) = dot(regpred(model(x)), (kwargs.wg.weights))  #dot(regpred(model(x); wg=kwargs.wg), -Flux.flatten(permutedims(kwargs.wg.weights, (2,1))))
     cost(batch) = sum(cost(item[1], item[3]) for item in batch)
     # Optimizer
     opt = ADAM(options.lr_start)

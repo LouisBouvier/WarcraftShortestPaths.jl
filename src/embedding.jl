@@ -47,7 +47,7 @@ The embedding is made as follows:
     4) A squeeze function to forget the two last dimensions. 
 """
 function create_warcraft_embedding()
-    resnet18 = ResNet18(pretrain = false, nclasses = 1)
+    resnet18 = ResNet(18, pretrain = false, nclasses = 1)
     model_embedding = Chain(resnet18.layers[1][1:4], 
                             AdaptiveMaxPool((12,12)), 
                             average_tensor, 
