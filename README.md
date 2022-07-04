@@ -42,7 +42,7 @@ More details on this framework can be seen [here](https://axelparmentier.github.
 
 ## Documentation
 
-Before building the documentation, please download this [dataset](https://edmond.mpdl.mpg.de/dataset.xhtml?persistentId=doi:10.17617/3.YJCQ5S) and place it in a `data` folder in the repo. You can unzip it manually or using `decompress_dataset` function.
+Before building the documentation, please download this [dataset](https://edmond.mpdl.mpg.de/dataset.xhtml?persistentId=doi:10.17617/3.YJCQ5S) and place it in the `data` folder of the repo. You can unzip it manually or using `decompress_dataset` function.
 
 You can then build the documentation locally with this command:
 
