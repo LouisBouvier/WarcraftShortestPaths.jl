@@ -7,14 +7,6 @@ function average_tensor(x)
     return sum(x, dims = [3])/size(x)[3]
 end
 
-"""
-    permute_tensor(x)
-
-Permute the two first axes of tensor `x`.
-"""
-function permute_tensor(x)
-    return permutedims(x, (2,1,3,4))
-end
 
 """
     neg_exponential_tensor(x)
@@ -51,11 +43,8 @@ function create_warcraft_embedding()
     model_embedding = Chain(resnet18.layers[1][1:4], 
                             AdaptiveMaxPool((12,12)), 
                             average_tensor, 
-                            # permute_tensor,
-                            # Flux.flatten,
                             neg_exponential_tensor, 
                             squeeze_last_dims,
-                            # vec,
     )
     return model_embedding
 end

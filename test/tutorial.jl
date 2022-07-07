@@ -18,12 +18,13 @@ We will use `InferOpt` to learn the appropriate weights, so that we may propose 
 =#
 
 using WarcraftShortestPaths
+using Random
+using InferOpt
+using Flux 
 using Graphs
 using GridGraphs
-using Flux
-using LinearAlgebra
-using Random
 using Statistics
+using LinearAlgebra
 using Test
 using UnicodePlots
 
@@ -52,12 +53,23 @@ spy(p)
 # ## Learning options 
 
 #=
-We first need to define a few learning options: the perturbation size `ϵ`, the number of noise sample 
-per dataset point `M`, the number of training epochs `nb_epochs`, the number of dataset samples `nb_samples`,
-the batch size `batch_size`, and the starting learning rate `lr_start`.
+We first need to define a few functions and options: the number of dataset samples `nb_samples`,
+and the proportion of train samples `train_prop`.
 =#
 
-options = (ϵ=0.1, M=3, nb_epochs=50, nb_samples=50, batch_size = 7, lr_start = 0.001)
+options = (nb_samples=100, train_prop = 0.8)
+
+## Main functions
+
+cost(y, θ) = dot(y, θ)
+error_function(ŷ, y) = half_square_norm(ŷ - y)
+
+function true_maximizer(θ::AbstractMatrix{R}; kwargs...) where {R<:Real}
+    g = GridGraph(-θ)
+    path = grid_dijkstra(g, 1, nv(g))
+    y = path_to_matrix(g, path)
+    return y
+end
 
 # ## Dataset and model
 
@@ -66,53 +78,85 @@ As announced, we do not know the cost of each vertex, only the image of the terr
 Let us load the dataset and keep 80% to train and 20% to test.
 =#
 
-dataset = create_dataset(decompressed_path, options.nb_samples)
-train_dataset, test_dataset = train_test_split(dataset, 0.8)
+data_train, data_test = generate_dataset(decompressed_path, options.nb_samples, options.train_prop)
 
 #=
-We can have a glimpse at a dataset point as follows:
+We can have a glimpse at a dataset image as follows:
 =#
-x, y_true, kwargs = test_dataset[6]
-im = convert_image_for_plot(x[:,:,:,1])
-plot_image_and_path(im, y_true)
+(X_test, Θ_test, Y_test) = data_test
+x_test, θ_test_true, y_test = X_test[5], Θ_test[5], Y_test[5]
+plot_map(dropdims(x_test; dims=4))
 
 #=
-We can now build our embedding, a truncated Resnet18.
+The corresponding shortest path 
 =#
 
-model = create_warcraft_embedding()
+plot_path(y_test)
+
+
+#=
+We can now show our embedding, a truncated Resnet18.
+=#
+
+create_warcraft_embedding()
 
 # ## Train model
 
 #= 
-We now have everything to train our model.
+We define a pipeline in a learning by experience setting, using a `FenchelYoungLoss`. You can find other pipelines in the `main.jl` file.
 =#
 
-Losses, Cost_ratios = train_with_perturbed_FYL!(;
-    model=model,
-    train_dataset=Flux.DataLoader(train_dataset; batchsize=options.batch_size),
-    test_dataset = Flux.DataLoader(test_dataset; batchsize=length(test_dataset)),
-    options=options,
+pipeline = (
+    encoder=create_warcraft_embedding(),
+    maximizer=identity,
+    loss=FenchelYoungLoss(PerturbedMultiplicative(true_maximizer; ε=1., nb_samples=5)),
 )
 
+
+#= 
+We train over this pipeline.
+=#
+
+(; encoder, maximizer, loss) = pipeline
+pipeline_loss_imitation_y(x, θ, y) = loss(maximizer(encoder(x)), y)
+apply_learning_pipeline!(
+    pipeline,
+    pipeline_loss_imitation_y;
+    true_maximizer=true_maximizer,
+    data_train=data_train,
+    data_test=data_test,
+    error_function=error_function,
+    cost=cost,
+    epochs=50,
+    verbose=true,
+    setting_name="paths - imitation_y",
+)
 # ## Results
 
 #=
-We are interested both in the Fenchel-Young and cost ratio between true and computed shortest path.
+We can assess results on a test set sample.
 =#
-Gaps = Cost_ratios .- 1
-plot_loss_and_cost_ratio(Losses, Gaps, options)
+
+θ_test_pred =  encoder(x_test)
+y_test_pred = UInt8.(true_maximizer(θ_test_pred))
+plot_map(dropdims(x_test; dims=4))
 
 #=
-To assess performance, we can compare the true and leanrned paths.
+The true cell costs:
 =#
-
-θ_test =  model(x)
-shortest_path = UInt8.(linear_maximizer(θ_test))
-
-plot_image_label_path(im, shortest_path, y_true)
+plot_weights(θ_test_true)
 
 #=
-As well as the learned weights with their true (hidden) values.
+The predicted cell costs:
 =#
-plot_terrain_weights(kwargs.wg.weights, -θ_test)
+plot_weights(θ_test_pred)
+
+#=
+The true shortest path:
+=#
+plot_path(y_test)
+
+#=
+The predicted shortest path:
+=#
+plot_path(y_test_pred)
