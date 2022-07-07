@@ -102,9 +102,8 @@ create_warcraft_embedding()
 
 # ## Train model
 
-#= 
-We define a pipeline in a learning by experience setting, using a `FenchelYoungLoss`. You can find other pipelines in the `main.jl` file.
-=#
+# We define a pipeline in a learning by experience setting, using a `FenchelYoungLoss`.
+# You can find other pipelines in the `main.jl` file.
 
 pipeline = (
     encoder=create_warcraft_embedding(),
@@ -113,9 +112,7 @@ pipeline = (
 )
 
 
-#= 
-We train over this pipeline.
-=#
+# We train over this pipeline.
 
 (; encoder, maximizer, loss) = pipeline
 pipeline_loss_imitation_y(x, θ, y) = loss(maximizer(encoder(x)), y)
@@ -149,7 +146,7 @@ plot_weights(θ_test_true)
 #=
 The predicted cell costs:
 =#
-plot_weights(θ_test_pred)
+plot_weights(-θ_test_pred)
 
 #=
 The true shortest path:

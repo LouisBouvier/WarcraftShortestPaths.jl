@@ -8,7 +8,7 @@ using Statistics
 using LinearAlgebra
 
 
-Random.seed!(42)
+Random.seed!(63)
 
 decompressed_path = joinpath(@__DIR__, "..", "data", "warcraft_maps")
 options = (nb_samples=100, train_prop = 0.8)
@@ -43,7 +43,7 @@ pipelines_imitation_y = [
     (
         encoder=create_warcraft_embedding(),
         maximizer=identity,
-        loss=FenchelYoungLoss(PerturbedMultiplicative(true_maximizer; ε=1., nb_samples=10)),
+        loss=FenchelYoungLoss(PerturbedMultiplicative(true_maximizer; ε=0.7, nb_samples=7)),
     ),
     # Perturbed + other loss
     (
@@ -154,6 +154,6 @@ y_test_pred = UInt8.(true_maximizer(θ_test_pred))
 # Display map, shortest path computed and shortest path labelled
 plot_map(dropdims(x_test; dims=4), filepath="map.pdf")
 plot_weights(θ_test_true, filepath="true_cost.pdf")
-plot_weights(θ_test_pred, filepath="pred_cost.pdf")
+plot_weights(-θ_test_pred, filepath="pred_cost.pdf")
 plot_path(y_test, filepath="true_path.pdf")
 plot_path(y_test_pred, filepath="pred_path.pdf")
