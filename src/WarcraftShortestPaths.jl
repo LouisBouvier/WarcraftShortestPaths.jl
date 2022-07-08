@@ -22,15 +22,19 @@ include("train.jl")
 
 export create_dataset
 export train_test_split
+
 export create_warcraft_embedding
-export train_with_perturbed_FYL!
-export train_with_perturbed_cost!
-export plot_loss
-export linear_maximizer
+export true_maximizer
+export cost
+
+export train_function!
+
 export convert_image_for_plot
-export plot_image_and_path
+export plot_loss_and_gap
+export plot_map
+export plot_path
+export plot_weights
 export plot_image_label_path
 export plot_terrain_weights
-export plot_loss_and_cost_ratio
 
 end
