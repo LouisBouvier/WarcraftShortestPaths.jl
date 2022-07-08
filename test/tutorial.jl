@@ -55,7 +55,7 @@ per dataset point `M`, the number of training epochs `nb_epochs`, the number of 
 the batch size `batch_size`, and the starting learning rate `lr_start`.
 =#
 
-options = (ϵ=0.8, M=10, nb_epochs=50, nb_samples=100, batch_size = 20, lr_start = 0.001)
+options = (ϵ=1.5, M=10, nb_epochs=50, nb_samples=100, batch_size = 20, lr_start = 0.001)
 
 # ## Dataset and model
 
@@ -92,7 +92,7 @@ pipeline = (
     encoder=create_warcraft_embedding(),
     maximizer=identity,
     loss=ProbabilisticComposition(
-        PerturbedMultiplicative(true_maximizer; ε=1.0, nb_samples=10), cost
+        PerturbedMultiplicative(true_maximizer; ε=options.ϵ, nb_samples=options.M), cost
     )
 )
 
