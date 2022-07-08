@@ -7,7 +7,6 @@ function average_tensor(x)
     return sum(x, dims = [3])/size(x)[3]
 end
 
-
 """
     neg_exponential_tensor(x)
 

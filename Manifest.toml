@@ -429,9 +429,9 @@ version = "3.3.6+0"
 
 [[deps.GPUArrays]]
 deps = ["Adapt", "GPUArraysCore", "LLVM", "LinearAlgebra", "Printf", "Random", "Reexport", "Serialization", "Statistics"]
-git-tree-sha1 = "73a4c9447419ce058df716925893e452ba5528ad"
+git-tree-sha1 = "470dcaf29237a0818bc2cc97f0c408f0bc052653"
 uuid = "0c68f7d7-f131-5f86-a1c3-88cf8149b2d7"
-version = "8.4.0"
+version = "8.4.1"
 
 [[deps.GPUArraysCore]]
 deps = ["Adapt"]
@@ -513,9 +513,9 @@ version = "1.7.1"
 
 [[deps.GridGraphs]]
 deps = ["DataStructures", "Graphs", "SparseArrays"]
-git-tree-sha1 = "a8fe4ca4d518e40cea55e551c3ac8124d7339938"
+git-tree-sha1 = "839a435ae8ac8e2d0457c78908f8e6757fbbb611"
 uuid = "dd2b58c7-5af7-4f17-9e46-57c68ac813fb"
-version = "0.6.0"
+version = "0.7.0"
 
 [[deps.Grisu]]
 git-tree-sha1 = "53bb909d1151e57e2484c3d1b53e19552b887fb2"

@@ -3,28 +3,25 @@
 # ## Context
 
 #=
-In this tutorial page we consider the learning by imitation setting. We have a sub-dataset of Warcraft terrain 
-images and corresponding shortest paths. We want to learn the cost of the cells, using a neural network embedding.
-
-
+In this tutorial page we illustrate one of the possible learning pipelines for the Warcraft shortest paths problem. 
+We have a sub-dataset of Warcraft terrain images and corresponding black box cost functions. 
+We want to learn the cost of the cells, using a neural network embedding.
 More precisely, each point in our dataset consists in:
-- an image of terrain ``I``
-- a shortest path ``P`` from the top left to the bottom right corner
-
+- an image of terrain ``I``.
+- a cost function ``c`` to evaluate any given path.
 We don't know the true costs that were used to compute the shortest path, but we can exploit the images to approximate these costs.
 The question is: how should we combine these features?
-
-We will use `InferOpt` to learn the appropriate weights, so that we may propose relevant paths in the future.
+We use `InferOpt` to learn the appropriate costs, so that we may propose relevant paths in the future.
 =#
 
 using WarcraftShortestPaths
-using Random
-using InferOpt
-using Flux 
 using Graphs
 using GridGraphs
-using Statistics
+using Flux
+using InferOpt
 using LinearAlgebra
+using Random
+using Statistics
 using Test
 using UnicodePlots
 
@@ -53,23 +50,12 @@ spy(p)
 # ## Learning options 
 
 #=
-We first need to define a few functions and options: the number of dataset samples `nb_samples`,
-and the proportion of train samples `train_prop`.
+We first need to define a few learning options: the perturbation size `ϵ`, the number of noise sample 
+per dataset point `M`, the number of training epochs `nb_epochs`, the number of dataset samples `nb_samples`,
+the batch size `batch_size`, and the starting learning rate `lr_start`.
 =#
 
-options = (nb_samples=100, train_prop = 0.8)
-
-## Main functions
-
-cost(y, θ) = dot(y, θ)
-error_function(ŷ, y) = half_square_norm(ŷ - y)
-
-function true_maximizer(θ::AbstractMatrix{R}; kwargs...) where {R<:Real}
-    g = GridGraph(-θ)
-    path = grid_dijkstra(g, 1, nv(g))
-    y = path_to_matrix(g, path)
-    return y
-end
+options = (ϵ=0.8, M=10, nb_epochs=50, nb_samples=100, batch_size = 20, lr_start = 0.001)
 
 # ## Dataset and model
 
@@ -78,60 +64,62 @@ As announced, we do not know the cost of each vertex, only the image of the terr
 Let us load the dataset and keep 80% to train and 20% to test.
 =#
 
-data_train, data_test = generate_dataset(decompressed_path, options.nb_samples, options.train_prop)
+dataset = create_dataset(decompressed_path, options.nb_samples)
+train_dataset, test_dataset = train_test_split(dataset, 0.8)
 
 #=
 We can have a glimpse at a dataset image as follows:
 =#
-(X_test, Θ_test, Y_test) = data_test
-x_test, θ_test_true, y_test = X_test[5], Θ_test[5], Y_test[5]
+x_test, y_test, kwargs_test = test_dataset[12]
 plot_map(dropdims(x_test; dims=4))
 
 #=
-The corresponding shortest path 
+The corresponding shortest path: 
 =#
 
 plot_path(y_test)
 
-
 #=
-We can now show our embedding, a truncated Resnet18.
+Our embedding is a truncated Resnet18.
 =#
 
 create_warcraft_embedding()
 
-# ## Train model
+# ## Create learning pipeline and flux loss
 
-# We define a pipeline in a learning by experience setting, using a `FenchelYoungLoss`.
-# You can find other pipelines in the `main.jl` file.
-
+# Here comes the specific InferOpt setting. We learn by experience here, only based on the images and on a black box cost function.
 pipeline = (
     encoder=create_warcraft_embedding(),
     maximizer=identity,
-    loss=FenchelYoungLoss(PerturbedMultiplicative(true_maximizer; ε=1., nb_samples=5)),
+    loss=ProbabilisticComposition(
+        PerturbedMultiplicative(true_maximizer; ε=1.0, nb_samples=10), cost
+    )
 )
 
-
-# We train over this pipeline.
-
+# Define flux loss
 (; encoder, maximizer, loss) = pipeline
-pipeline_loss_imitation_y(x, θ, y) = loss(maximizer(encoder(x)), y)
-apply_learning_pipeline!(
-    pipeline,
-    pipeline_loss_imitation_y;
-    true_maximizer=true_maximizer,
-    data_train=data_train,
-    data_test=data_test,
-    error_function=error_function,
-    cost=cost,
-    epochs=50,
-    verbose=true,
-    setting_name="paths - imitation_y",
+flux_loss_point(x, y, kwargs) = loss(maximizer(encoder(x)); c_true = kwargs.wg.weights)
+flux_loss_batch(batch) = sum(flux_loss_point(item[1], item[2], item[3]) for item in batch)
+
+# We now have everything to train our model.
+Losses, Cost_ratios = train_function!(;
+    encoder=encoder,
+    flux_loss = flux_loss_batch,
+    train_dataset=Flux.DataLoader(train_dataset; batchsize=options.batch_size),
+    test_dataset = Flux.DataLoader(test_dataset; batchsize=length(test_dataset)),
+    options=options,
 )
+
 # ## Results
 
 #=
-We can assess results on a test set sample.
+We are interested both in the loss and cost ratio between true and computed shortest path.
+=#
+Gaps = Cost_ratios .- 1
+plot_loss_and_gap(Losses, Gaps, options)
+
+#=
+To assess performance, we can compare the true and predicted paths.
 =#
 
 θ_test_pred =  encoder(x_test)
@@ -141,7 +129,7 @@ plot_map(dropdims(x_test; dims=4))
 #=
 The true cell costs:
 =#
-plot_weights(θ_test_true)
+plot_weights(kwargs_test.wg.weights)
 
 #=
 The predicted cell costs:

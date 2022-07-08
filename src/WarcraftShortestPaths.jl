@@ -23,16 +23,23 @@ include("warcraft_plots.jl")
 include("embedding.jl")
 include("dataset.jl")
 include("error.jl")
-include("perf.jl")
-include("pipeline.jl")
+include("train.jl")
 
-export generate_dataset
+export create_dataset
+export train_test_split
+
 export create_warcraft_embedding
+export true_maximizer
+export cost
 
+export train_function!
+
+export convert_image_for_plot
+export plot_loss_and_gap
 export plot_map
-export plot_weights
 export plot_path
-
-export apply_learning_pipeline!
+export plot_weights
+export plot_image_label_path
+export plot_terrain_weights
 
 end
