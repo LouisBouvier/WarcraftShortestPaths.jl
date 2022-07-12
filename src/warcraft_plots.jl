@@ -34,14 +34,17 @@ function plot_image_label_path(im::Array{RGB{N0f8}, 2}, zero_one_path::Matrix{UI
 end
 
 """
-    plot_loss_and_gap(losses::Matrix{Float64}, gaps::Matrix{Float64},  options::NamedTuple)
+    plot_loss_and_gap(losses::Matrix{Float64}, gaps::Matrix{Float64},  options::NamedTuple; filepath=nothing)
+
 Plot the train and test losses, as well as the train and test gaps computed over epochs.
 """
-function plot_loss_and_gap(losses::Matrix{Float64}, gaps::Matrix{Float64},  options::NamedTuple)
+function plot_loss_and_gap(losses::Matrix{Float64}, gaps::Matrix{Float64},  options::NamedTuple; filepath=nothing)
     x = collect(1:options.nb_epochs)
     p1 = plot(x, losses, title = "Loss", xlabel = "epochs", ylabel = "loss", label = ["train" "test"])
     p2 = plot(x, gaps, title = "Gap", xlabel = "epochs", ylabel = "ratio", label = ["train" "test"])
-    plot(p1, p2, layout = (1, 2))
+    pl = plot(p1, p2, layout = (1, 2))
+    isnothing(filepath) || Plots.savefig(pl, filepath)
+    return pl
 end
 
 """

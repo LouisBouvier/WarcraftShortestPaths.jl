@@ -10,7 +10,7 @@ in [GridGraphs.jl](https://github.com/gdalle/GridGraphs.jl).
 """
 function true_maximizer(θ::AbstractMatrix{R}; kwargs...) where {R<:Real}
     g = GridGraph(-θ)
-    path = grid_dijkstra(g, 1, nv(g))
+    path = grid_bellman_ford(g, 1, nv(g))
     y = path_to_matrix(g, path)
     return y
 end

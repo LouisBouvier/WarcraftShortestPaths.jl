@@ -1,6 +1,7 @@
 module WarcraftShortestPaths
 
 using Colors
+using CSV
 using Flux
 using GZip
 using Graphs
@@ -15,15 +16,18 @@ using Plots
 using ProgressMeter
 using Random
 using Statistics
+using Tables
 using Tar
 using UnicodePlots
 
-
+include("export.jl")
 include("warcraft_plots.jl")
 include("embedding.jl")
 include("dataset.jl")
 include("error.jl")
 include("train.jl")
+
+export save_metrics
 
 export create_dataset
 export train_test_split
