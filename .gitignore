@@ -6,3 +6,4 @@
 /Manifest.toml
 *.json
 *.npy
+/data/warcraft_maps/
