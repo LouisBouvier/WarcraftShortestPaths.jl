@@ -1,11 +1,11 @@
-using WarcraftShortestPaths
-using InferOpt
-using Flux
+@time_imports using InferOpt
+@time_imports using Flux
+@time_imports using WarcraftShortestPaths
 using Random
 
 Random.seed!(63);
 decompressed_path = joinpath(@__DIR__, "..", "data", "warcraft_maps")
-options = (ϵ=7., M=20, nb_epochs=100, nb_samples=100, batch_size = 80, lr_start = 0.001)
+options = (ϵ=7.0, M=20, nb_epochs=100, nb_samples=100, batch_size=80, lr_start=0.001)
 
 ## Import dataset
 dataset = create_dataset(decompressed_path, options.nb_samples)
@@ -14,7 +14,7 @@ train_dataset, test_dataset = train_test_split(dataset, 0.8)
 ## Create learning pipeline and flux loss
 # Here comes the specific InferOpt setting
 
-pipeline =  (
+pipeline = (
     encoder=create_warcraft_embedding(),
     maximizer=RegularizedGeneric(true_maximizer, half_square_norm, identity),
     loss=Flux.Losses.mse,
@@ -24,21 +24,23 @@ pipeline =  (
 
 (; encoder, maximizer, loss) = pipeline
 # flux_loss_point(x, y, kwargs) = loss(maximizer(encoder(x)); c_true = kwargs.wg.weights)
-flux_loss_point(x, y, kwargs) = loss(maximizer(encoder(x)), y)
+function flux_loss_point(x, y, kwargs)
+    return loss(maximizer(encoder(x); fw_kwargs=(max_iteration=5, epsilon=2e-2)), y)
+end
 # flux_loss_point(x, y, kwargs) = loss(maximizer(encoder(x)), -kwargs.wg.weights)
 flux_loss_batch(batch) = sum(flux_loss_point(item[1], item[2], item[3]) for item in batch)
 
 ## Training function
-Losses, Cost_ratios = train_function!(;
+@profview Losses, Cost_ratios = train_function!(;
     encoder=encoder,
-    flux_loss = flux_loss_batch,
+    flux_loss=flux_loss_batch,
     train_dataset=Flux.DataLoader(train_dataset; batchsize=options.batch_size),
-    test_dataset = Flux.DataLoader(test_dataset; batchsize=length(test_dataset)),
+    test_dataset=Flux.DataLoader(test_dataset; batchsize=length(test_dataset)),
     options=options,
 )
 Gaps = Cost_ratios .- 1
 
-## Plots and save data 
+## Plots and save data
 # pipeline_name = "MSE_RegularizedGeneric/"
 # options_name = "epsilon_$(options.ϵ)_M_$(options.M)_nb_epochs_$(options.nb_epochs)_nb_samples_$(options.nb_samples)_batch_size_$(options.batch_size)_lr_start_$(options.lr_start)/"
 # path_to_save = "../results_article/"*pipeline_name*options_name
