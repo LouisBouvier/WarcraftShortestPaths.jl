@@ -5,24 +5,27 @@ using Random
 
 Random.seed!(63);
 decompressed_path = joinpath(@__DIR__, "..", "data", "warcraft_maps")
-options = (ϵ=1.2, M=3, nb_epochs=5, nb_samples=5, batch_size = 1, lr_start = 0.001)
+options = (ϵ=7., M=20, nb_epochs=100, nb_samples=100, batch_size = 80, lr_start = 0.001)
 
 ## Import dataset
 dataset = create_dataset(decompressed_path, options.nb_samples)
 train_dataset, test_dataset = train_test_split(dataset, 0.8)
 
 ## Create learning pipeline and flux loss
-
 # Here comes the specific InferOpt setting
 
-pipeline =  (encoder=create_warcraft_embedding(), maximizer=identity, loss=SPOPlusLoss(true_maximizer))
+pipeline =  (
+    encoder=create_warcraft_embedding(),
+    maximizer=RegularizedGeneric(true_maximizer, half_square_norm, identity),
+    loss=Flux.Losses.mse,
+)
 
 # Define flux loss
 
 (; encoder, maximizer, loss) = pipeline
 # flux_loss_point(x, y, kwargs) = loss(maximizer(encoder(x)); c_true = kwargs.wg.weights)
-# flux_loss_point(x, y, kwargs) = loss(maximizer(encoder(x)), y)
-flux_loss_point(x, y, kwargs) = loss(maximizer(encoder(x)), -kwargs.wg.weights)
+flux_loss_point(x, y, kwargs) = loss(maximizer(encoder(x)), y)
+# flux_loss_point(x, y, kwargs) = loss(maximizer(encoder(x)), -kwargs.wg.weights)
 flux_loss_batch(batch) = sum(flux_loss_point(item[1], item[2], item[3]) for item in batch)
 
 ## Training function
@@ -36,7 +39,7 @@ Losses, Cost_ratios = train_function!(;
 Gaps = Cost_ratios .- 1
 
 ## Plots and save data 
-# pipeline_name = "FY_Regularized/"
+# pipeline_name = "MSE_RegularizedGeneric/"
 # options_name = "epsilon_$(options.ϵ)_M_$(options.M)_nb_epochs_$(options.nb_epochs)_nb_samples_$(options.nb_samples)_batch_size_$(options.batch_size)_lr_start_$(options.lr_start)/"
 # path_to_save = "../results_article/"*pipeline_name*options_name
 # mkpath(path_to_save)

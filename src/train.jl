@@ -10,7 +10,7 @@ in [GridGraphs.jl](https://github.com/gdalle/GridGraphs.jl).
 """
 function true_maximizer(θ::AbstractMatrix{R}; kwargs...) where {R<:Real}
     g = GridGraph(-θ)
-    path = grid_bellman_ford(g, 1, nv(g))
+    path = grid_bellman_ford_warcraft(g, 1, nv(g))
     y = path_to_matrix(g, path)
     return y
 end
@@ -75,8 +75,8 @@ function train_function!(;encoder, flux_loss, train_dataset, test_dataset, optio
             losses[epoch, 1] += batch_loss
             Flux.update!(opt, par, gs)
         end
-        losses[epoch, 1] = losses[epoch, 1]/(length(train_dataset)*options.batch_size)
-        losses[epoch, 2] = sum([flux_loss(batch) for batch in test_dataset])/(length(test_dataset)*options.batch_size)
+        losses[epoch, 1] = losses[epoch, 1]/(options.nb_samples*0.8)
+        losses[epoch, 2] = sum([flux_loss(batch) for batch in test_dataset])/(options.nb_samples*0.2)
         cost_ratios[epoch, 1] = shortest_path_cost_ratio(model = encoder, dataset = train_dataset)
         cost_ratios[epoch, 2] = shortest_path_cost_ratio(model = encoder, dataset = test_dataset)
     end

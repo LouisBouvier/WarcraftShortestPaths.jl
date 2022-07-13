@@ -20,12 +20,15 @@ using Tables
 using Tar
 using UnicodePlots
 
+include("ford_bellman.jl")
 include("export.jl")
 include("warcraft_plots.jl")
 include("embedding.jl")
 include("dataset.jl")
 include("error.jl")
 include("train.jl")
+
+export grid_bellman_ford_warcraft
 
 export save_metrics
 
