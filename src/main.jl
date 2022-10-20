@@ -30,9 +30,9 @@ flux_loss_batch(batch) = sum(flux_loss_point(item[1], item[2], item[3]) for item
 ## Training function
 Losses, Cost_ratios = train_function!(;
     encoder=encoder,
-    flux_loss = flux_loss_batch,
+    flux_loss=flux_loss_batch,
     train_dataset=Flux.DataLoader(train_dataset; batchsize=options.batch_size),
-    test_dataset = Flux.DataLoader(test_dataset; batchsize=length(test_dataset)),
+    test_dataset=Flux.DataLoader(test_dataset; batchsize=length(test_dataset)),
     options=options,
 )
 Gaps = Cost_ratios .- 1
