@@ -45,7 +45,7 @@ Each point of the dataset is linked to a (12x12) Warcraft terrain grid. It is co
 
 The two distinct frameworks we consider are:
 
-1) **Learning by imitation**: given the images and labels, learn the cost ``c_\theta`` such that the labelled shortest 
-paths are close to the shortest path computed with ``c_\theta`` using Dijkstra on the Warcraft grids.
+1) **Learning by imitation**: given the images and labels, learn the cost such that the labelled shortest 
+paths are close to the shortest path computed with the given cost using Dijkstra on the Warcraft grids.
 
 2) **Learning by experience**: given the images and a black-box function that computes the cost of a path on any grid, learn the cost such that the true cost of the paths computed as shortest paths with respect to the learned costs are low.
