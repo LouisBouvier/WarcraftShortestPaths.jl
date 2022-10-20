@@ -2,10 +2,10 @@
 """
     grid_bellman_ford_warcraft(g, s, d, length_max)
 
-Apply the Bellman-Ford algorithm on an `AbstractGridGraph` `g`, and return a `ShortestPathTree` with source `s` and destination `d`,
+Apply the Bellman-Ford algorithm on an `GridGraph` `g`, and return a `ShortestPathTree` with source `s` and destination `d`,
 among the paths having length smaller than `length_max`.
 """
-function grid_bellman_ford_warcraft(g::AbstractGridGraph{T,R}, s::Integer, d::Integer, length_max::Int = nv(g)) where {T,R}
+function grid_bellman_ford_warcraft(g::GridGraph{T,R,W,A}, s::Integer, d::Integer, length_max::Int = nv(g)) where {T,R,W,A}
     # Init storage
     parents = zeros(T, nv(g), length_max+1)
     dists = Matrix{Union{Nothing,R}}(undef, nv(g), length_max+1)
@@ -19,7 +19,7 @@ function grid_bellman_ford_warcraft(g::AbstractGridGraph{T,R}, s::Integer, d::In
                 d_u = dists[u, k]
                 if !isinf(d_u)
                     d_v = dists[v, k+1]
-                    d_v_through_u = d_u + GridGraphs.get_weight(g, v)
+                    d_v_through_u = d_u + GridGraphs.vertex_weight(g, v)
                     if isinf(d_v) || (d_v_through_u < d_v)
                         dists[v, k+1] = d_v_through_u
                         parents[v, k+1] = u

@@ -38,6 +38,9 @@ export train_test_split
 export create_warcraft_embedding
 export true_maximizer
 export cost
+export my_mse
+export scaled_half_square_norm
+export grad_scaled_half_square_norm
 
 export train_function!
 

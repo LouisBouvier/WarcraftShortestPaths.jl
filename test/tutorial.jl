@@ -1,4 +1,4 @@
-# # Tutorial
+# # Tutorial: learning by experience 
 
 # ## Context
 
@@ -55,7 +55,7 @@ per dataset point `M`, the number of training epochs `nb_epochs`, the number of 
 the batch size `batch_size`, and the starting learning rate `lr_start`.
 =#
 
-options = (ϵ=1.5, M=10, nb_epochs=50, nb_samples=100, batch_size = 20, lr_start = 0.001)
+options = (ϵ=1.5, M=50, nb_epochs=100, dataset_size=100, batch_size = 80, lr_start = 0.001)
 
 # ## Dataset and model
 
@@ -64,8 +64,10 @@ As announced, we do not know the cost of each vertex, only the image of the terr
 Let us load the dataset and keep 80% to train and 20% to test.
 =#
 
-dataset = create_dataset(decompressed_path, options.nb_samples)
+dataset = create_dataset(decompressed_path, options.dataset_size)
 train_dataset, test_dataset = train_test_split(dataset, 0.8)
+println("Size of the train dataset: $(size(train_dataset))")
+println("Size of the test dataset: $(size(test_dataset))")
 
 #=
 We can have a glimpse at a dataset image as follows:
@@ -91,7 +93,7 @@ create_warcraft_embedding()
 pipeline = (
     encoder=create_warcraft_embedding(),
     maximizer=identity,
-    loss=ProbabilisticComposition(
+    loss=Pushforward(
         PerturbedMultiplicative(true_maximizer; ε=options.ϵ, nb_samples=options.M), cost
     )
 )

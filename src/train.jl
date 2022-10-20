@@ -1,5 +1,10 @@
-cost(y; c_true) = dot(y, c_true)
+cost(y; c_true, kwargs...) = dot(y, c_true)
 
+my_mse(ŷ, y; agg = mean, kwargs...) = Flux.Losses.mse(ŷ, y; agg = mean)
+
+scaled_half_square_norm(x::AbstractArray{<:Real}, ϵ::R = 25.) where {R<:Real} = ϵ*sum(abs2, x) / 2
+
+grad_scaled_half_square_norm(x::AbstractArray{<:Real}, ϵ::R = 25.) where {R<:Real} = ϵ*identity(x)
 
 """
     true_maximizer(θ::AbstractMatrix{R}; kwargs...) where {R<:Real}
@@ -10,7 +15,8 @@ in [GridGraphs.jl](https://github.com/gdalle/GridGraphs.jl).
 """
 function true_maximizer(θ::AbstractMatrix{R}; kwargs...) where {R<:Real}
     g = GridGraph(-θ)
-    path = grid_bellman_ford_warcraft(g, 1, nv(g))
+    # path = grid_bellman_ford_warcraft(g, 1, nv(g))
+    path = grid_dijkstra(g, 1, nv(g))
     y = path_to_matrix(g, path)
     return y
 end
@@ -75,10 +81,10 @@ function train_function!(;encoder, flux_loss, train_dataset, test_dataset, optio
             losses[epoch, 1] += batch_loss
             Flux.update!(opt, par, gs)
         end
-        losses[epoch, 1] = losses[epoch, 1]/(options.nb_samples*0.8)
-        losses[epoch, 2] = sum([flux_loss(batch) for batch in test_dataset])/(options.nb_samples*0.2)
+        losses[epoch, 1] = losses[epoch, 1]/(options.dataset_size*0.8)
+        losses[epoch, 2] = sum([flux_loss(batch) for batch in test_dataset])/(options.dataset_size*0.2)
         cost_ratios[epoch, 1] = shortest_path_cost_ratio(model = encoder, dataset = train_dataset)
         cost_ratios[epoch, 2] = shortest_path_cost_ratio(model = encoder, dataset = test_dataset)
     end
-    return losses, cost_ratios
+     return losses, cost_ratios
 end
