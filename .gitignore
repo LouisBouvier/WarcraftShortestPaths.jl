@@ -7,3 +7,4 @@
 *.json
 *.npy
 /data/warcraft_maps/
+/data/*

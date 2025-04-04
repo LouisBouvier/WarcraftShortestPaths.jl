@@ -26,7 +26,7 @@ using Test
 using UnicodePlots
 
 Random.seed!(63);
-decompressed_path = joinpath(@__DIR__, "..","..", "data", "warcraft_maps")
+decompressed_path = joinpath(@__DIR__, "..", "data")
 
 
 # ## Grid graphs
@@ -55,7 +55,7 @@ per dataset point `M`, the number of training epochs `nb_epochs`, the number of 
 the batch size `batch_size`, and the starting learning rate `lr_start`.
 =#
 
-options = (ϵ=1.5, M=50, nb_epochs=100, dataset_size=100, batch_size = 80, lr_start = 0.001)
+options = (ϵ=1.5, M=50, nb_epochs=100, dataset_size=100, batch_size = 60, lr_start = 0.001) # originally: batch_size = 80
 
 # ## Dataset and model
 
@@ -100,6 +100,7 @@ pipeline = (
 
 # Define flux loss
 (; encoder, maximizer, loss) = pipeline
+# encoder = new_warcraft_embedding()
 flux_loss_point(x, y, kwargs) = loss(maximizer(encoder(x)); c_true = kwargs.wg.weights)
 flux_loss_batch(batch) = sum(flux_loss_point(item[1], item[2], item[3]) for item in batch)
 

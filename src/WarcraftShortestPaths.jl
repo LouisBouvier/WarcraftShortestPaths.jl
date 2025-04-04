@@ -35,7 +35,7 @@ export save_metrics
 export create_dataset
 export train_test_split
 
-export create_warcraft_embedding
+export create_warcraft_embedding, new_warcraft_embedding, critic_warcraft_embedding
 export true_maximizer
 export cost
 export my_mse

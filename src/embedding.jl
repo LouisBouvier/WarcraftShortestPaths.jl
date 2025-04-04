@@ -39,11 +39,36 @@ The embedding is made as follows:
 """
 function create_warcraft_embedding()
     resnet18 = ResNet(18, pretrain = false, nclasses = 1)
-    model_embedding = Chain(resnet18.layers[1][1:4], 
+    model_embedding = Chain(resnet18.layers[1][1:3], # originally: resnet18.layers[1][1:4]
                             AdaptiveMaxPool((12,12)), 
                             average_tensor, 
                             neg_exponential_tensor, 
                             squeeze_last_dims,
     )
     return model_embedding
+end
+
+function new_warcraft_embedding()
+    return Chain(Conv((8, 8), 3 => 64, pad=3, stride=2, bias=false, tanh),
+                MaxPool((3, 3), pad=1, stride=2),
+                Conv((3, 3), 64 => 64, pad=1, bias=false, relu),
+                Conv((3, 3), 64 => 64, pad=1, bias=false, tanh),
+                Conv((3, 3), 64 => 32, pad=1, bias=false, relu),
+                Conv((3, 3), 32 => 16, pad=1, bias=false, tanh),
+                Conv((3, 3), 16 => 8, pad=1, bias=false, relu),
+                AdaptiveMeanPool((12, 12)), average_tensor, neg_exponential_tensor, squeeze_last_dims
+                )
+end
+
+function critic_warcraft_embedding()
+    return Chain(Conv((8, 8), 3 => 64, pad=3, stride=2, bias=false, tanh),
+                MeanPool((3, 3), pad=1, stride=2),
+                Conv((3, 3), 64 => 64, pad=1, bias=false, relu),
+                Conv((3, 3), 64 => 64, pad=1, bias=false, tanh),
+                Conv((3, 3), 64 => 32, pad=1, bias=false, relu),
+                Conv((3, 3), 32 => 16, pad=1, bias=false, tanh),
+                Conv((3, 3), 16 => 8, pad=1, bias=false, relu),
+                AdaptiveMeanPool((12, 12)), average_tensor, neg_exponential_tensor, squeeze_last_dims,
+                vec, Dense(144, 40, tanh), Dense(40, 10, relu), Dense(10, 1)
+    )
 end

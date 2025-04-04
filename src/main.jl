@@ -4,8 +4,8 @@ using Random
 using WarcraftShortestPaths
 
 Random.seed!(63);
-decompressed_path = joinpath(@__DIR__, "..", "data", "warcraft_maps")
-options = (ϵ=0.05, M=20, nb_epochs=100, dataset_size=100, batch_size = 80, lr_start = 0.001)
+decompressed_path = joinpath(@__DIR__, "..", "data")
+options = (ϵ=0.05, M=20, nb_epochs=100, dataset_size=100, batch_size = 60, lr_start = 0.001) # originally: batch_size = 80
 
 ## Import dataset
 dataset = create_dataset(decompressed_path, options.dataset_size)
@@ -22,6 +22,7 @@ pipeline = (
 
 # Define flux loss
 (; encoder, maximizer, loss) = pipeline
+# encoder = new_warcraft_embedding()
 # flux_loss_point(x, y, kwargs) = loss(maximizer(encoder(x)); c_true = kwargs.wg.weights, fw_kwargs = (max_iteration=100,))
 flux_loss_point(x, y, kwargs) = loss(maximizer(encoder(x)), y; fw_kwargs = (max_iteration=50,))
 # flux_loss_point(x, y, kwargs) = loss(maximizer(encoder(x)), -kwargs.wg.weights)

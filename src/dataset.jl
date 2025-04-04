@@ -58,11 +58,17 @@ end
 Split a dataset contained in `X` into train and test datasets.
 The proportion of the initial dataset kept in the train set is `train_percentage`.
 """
-function train_test_split(X::AbstractVector, train_percentage::Real=0.5)
+function train_test_split(X::AbstractVector, train_percentage::Real=0.5; val_percentage=0.2, use_val=false)
     N = length(X)
     N_train = floor(Int, N * train_percentage)
-    N_test = N - N_train
-    train_ind, test_ind = 1:N_train, (N_train + 1):(N_train + N_test)
-    X_train, X_test = X[train_ind], X[test_ind]
-    return X_train, X_test
+    N_val = floor(Int, N * val_percentage)
+    if use_val
+        train_ind, val_ind, test_ind = 1:N_train, (N_train + 1):(N_train + N_val), (N_train + N_val + 1):N
+        X_train, X_val, X_test = X[train_ind], X[val_ind], X[test_ind]
+        return X_train, X_val, X_test
+    else
+        train_ind, test_ind = 1:N_train, (N_train + 1):N
+        X_train, X_test = X[train_ind], X[test_ind]
+        return X_train, X_test
+    end
 end
