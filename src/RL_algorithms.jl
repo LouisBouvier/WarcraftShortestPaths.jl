@@ -56,7 +56,7 @@ function reward_comparison(train_rew, val_rew)
 end
 
 ## IL function
-function IL_training(model, critic, data, val_data; nb_epochs=100, batch_size = 10, no_samples = 20, sigma_values=[0.05, 0.05], lr_values = [1e-3, 1e-3], use_critic=true, critic_steps = 0, soft=false, temp=1.0)
+function IL_training(model, critic, data, val_data; nb_epochs=100, batch_size = 10, no_samples = 20, sigma_values=[0.05, 0.05], lr_values = [1e-3, 1e-3], use_critic=true, critic_steps = 0, soft=false, temp_values=[10.0, 0.1])
     loss = FenchelYoungLoss(PerturbedMultiplicative(true_maximizer; ε=0.05, nb_samples=20))
     opt_a = Optimiser(ClipValue(1e-3), Adam(lr_values[1]))
     opt_c = Optimiser(ClipValue(1e-3), Adam(lr_values[1]))
@@ -70,12 +70,14 @@ function IL_training(model, critic, data, val_data; nb_epochs=100, batch_size = 
     prob(θ, eps) = MvNormal(θ, eps * I)
     sigma = sigma_values[1]
     sigma_step = (sigma_values[1] - sigma_values[2]) / nb_epochs
+    temp = temp_values[1]
+    temp_step = (temp_values[1] - temp_values[2]) / nb_epochs
 
     losses = Float64[]
     for epoch in 1:nb_epochs
         push!(train_costs, mean([cost(true_maximizer(model(b[1])); c_true=b[3].wg.weights) for b in data]),)
         push!(val_costs, mean([cost(true_maximizer(model(b[1])); c_true=b[3].wg.weights) for b in val_data]),)
-        @info epoch, "sigma:", sigma, "lr", opt_a.os[2].eta, "train:", train_costs[end], "val:", val_costs[end]
+        @info epoch, "sigma:", sigma, "lr:", opt_a.os[2].eta, "temp:", temp, "train:", train_costs[end], "val:", val_costs[end]
         if reward_comparison(train_costs, val_costs)
             best_model = deepcopy(model)
             best_episode = epoch
@@ -136,6 +138,7 @@ function IL_training(model, critic, data, val_data; nb_epochs=100, batch_size = 
         lr = opt_a.os[2].eta
         opt_a.os[2].eta = max(lr - lr_step, lr_values[2])
         opt_c.os[2].eta = max(lr - lr_step, lr_values[2])
+        temp = max(temp - temp_step, temp_values[2])
     end
 
     push!(train_costs, mean([cost(true_maximizer(best_model(b[1])); c_true=b[3].wg.weights) for b in data]),)
