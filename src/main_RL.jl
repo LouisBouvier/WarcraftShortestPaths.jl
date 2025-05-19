@@ -32,6 +32,8 @@ random_train = mean([cost(true_maximizer(model_random(x)); c_true=kwargs.wg.weig
 Random.seed!(0);
 model_SL = new_warcraft_embedding();
 model_SL, train_SL, val_SL, losses_SL = SL_training(model_SL, train_dataset, val_dataset; nb_epochs=200, batch_size=60, lr_start=0.001)
+sl_runtime = @timed SL_training(model_SL, train_dataset, val_dataset; nb_epochs=200, batch_size=60, lr_start=0.001)
+sl_runtime.time
 SL_train = mean([cost(true_maximizer(model_SL(x)); c_true=kwargs.wg.weights) for (x, y, kwargs) in train_dataset]) # 30.44
 fig = plot(train_SL, label="train history"; marker=:o)
 plot!(fig, val_SL, label="val history"; marker=:o)
@@ -63,6 +65,8 @@ model_IL, train_IL, val_IL, losses_IL = IL_training(model_IL, critic_IL, train_d
     nb_epochs = 200, batch_size = 60, no_samples = 80, sigma_values = [0.05, 0.02], lr_values = [1e-3, 5e-4], use_critic = false, critic_steps = 0, soft=true, temp_values=[1e1, 1e-1]
 )
 IL_train = mean([cost(true_maximizer(model_IL(x)); c_true=kwargs.wg.weights) for (x, y, kwargs) in train_dataset]) # 30.47
+il_runtime = @timed IL_training(model_IL, critic_IL, train_dataset, val_dataset; nb_epochs = 200, batch_size = 60, no_samples = 80, sigma_values = [0.05, 0.02], lr_values = [1e-3, 5e-4], use_critic = false, critic_steps = 0, soft=true, temp_values=[1e1, 1e-1])
+il_runtime.time
 # temp: 1e-2, 1e-1, 1e0, 1e1, 1e2
 
 function IL_test(sigma_steps, lr_steps, temp_steps, seeds; soft=true)
@@ -127,6 +131,8 @@ model_PPO, train_PPO, val_PPO, losses_PPO = PPO_training(model_PPO, critic_PPO, 
 nb_epochs = 200, batch_size = 20, clip = 0.2, sigma_values = [0.1, 0.05], lr_values = [5e-4, 1e-4], use_critic = false, critic_steps = 0
 )
 PPO_train = mean([cost(true_maximizer(model_PPO(x)); c_true=kwargs.wg.weights) for (x, y, kwargs) in train_dataset]) # 33.8
+ppo_runtime = @timed PPO_training(model_PPO, critic_PPO, train_dataset, val_dataset; nb_epochs = 200, batch_size = 20, clip = 0.2, sigma_values = [0.1, 0.05], lr_values = [5e-4, 1e-4], use_critic = false, critic_steps = 0)
+ppo_runtime.time
 # x, y, kwargs = train_dataset[1]
 # model_PPO(x)
 
